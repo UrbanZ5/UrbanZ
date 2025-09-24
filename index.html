@@ -112,12 +112,29 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
         
-        /* Imagens dos produtos - ajustado para mostrar melhor as imagens */
+        /* Otimizações para carregamento rápido das imagens */
         .product-main-image {
-            height: 280px; /* Aumentado de h-56 (224px) para 280px */
+            height: 280px;
             width: 100%;
-            object-fit: contain; /* Mudado de cover para contain para não cortar */
-            background-color: #f9fafb; /* Fundo suave para imagens com espaços vazios */
+            object-fit: contain;
+            background-color: #f9fafb;
+            transition: opacity 0.3s ease;
+        }
+        
+        .image-loading {
+            opacity: 0.5;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        .image-loaded {
+            opacity: 1;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
         
         .dashboard-card:hover {
@@ -234,20 +251,6 @@
         
         .logout-btn:hover {
             background: #dc2626;
-        }
-        
-        .admin-access-info {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #1e40af;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 14px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-            cursor: pointer;
         }
         
         /* Upload de imagens */
@@ -561,7 +564,7 @@
             }
             
             .product-main-image {
-                height: 250px; /* Altura ajustada para mobile */
+                height: 250px;
             }
         }
     </style>
@@ -1145,16 +1148,10 @@
         </div>
     </div>
 
-    <!-- Informação de acesso ao admin -->
-    <div id="admin-access-info" class="admin-access-info hidden">
-        <i class="fas fa-info-circle mr-2"></i>
-        <span>Para acessar o admin, adicione <strong>#/admin</strong> na URL</span>
-    </div>
-
     <script>
         // ===== CONFIGURAÇÕES =====
 const WHATSAPP_NUMBER = "5584920003152";
-const IS_DEVELOPMENT = true;
+const IS_DEVELOPMENT = false;
 const API_BASE_URL = "https://meu-backend-cdiy.onrender.com";
 
 // ===== SISTEMA DE AUTENTICAÇÃO =====
@@ -1371,10 +1368,7 @@ const elements = {
     cancelCategory: document.getElementById('cancel-category'),
     categoryName: document.getElementById('category-name'),
     categoryId: document.getElementById('category-id'),
-    categoryDescription: document.getElementById('category-description'),
-    
-    // Info de desenvolvimento
-    adminAccessInfo: document.getElementById('admin-access-info')
+    categoryDescription: document.getElementById('category-description')
 };
 
 // ===== FUNÇÕES DE NOTIFICAÇÃO =====
@@ -1431,6 +1425,30 @@ function fileToBase64(file) {
         reader.onerror = reject;
         reader.readAsDataURL(file);
     });
+}
+
+// ===== OTIMIZAÇÕES DE IMAGEM =====
+function preloadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = src;
+    });
+}
+
+function addImageLoadingEffect(imgElement) {
+    imgElement.classList.add('image-loading');
+    
+    imgElement.onload = function() {
+        this.classList.remove('image-loading');
+        this.classList.add('image-loaded');
+    };
+    
+    imgElement.onerror = function() {
+        this.classList.remove('image-loading');
+        this.src = 'https://via.placeholder.com/400x300?text=Imagem+Indisponível';
+    };
 }
 
 // ===== GERENCIAMENTO DE CORES NO FORMULÁRIO =====
@@ -1826,14 +1844,6 @@ async function init() {
     setupRouting();
     setupEventListeners();
     
-    if (IS_DEVELOPMENT) {
-        elements.adminAccessInfo.classList.remove('hidden');
-        
-        setTimeout(() => {
-            elements.adminAccessInfo.classList.add('hidden');
-        }, 10000);
-    }
-    
     renderCategoryFilters();
     updateCartUI();
     renderCategories();
@@ -1897,11 +1907,6 @@ function setupEventListeners() {
     elements.addCategoryBtn.addEventListener('click', openAddCategoryModal);
     elements.cancelCategory.addEventListener('click', closeAddCategoryModal);
     elements.categoryForm.addEventListener('submit', handleCategorySubmit);
-    
-    // Info de desenvolvimento
-    elements.adminAccessInfo.addEventListener('click', function() {
-        this.classList.add('hidden');
-    });
 }
 
 // ===== HANDLERS DE AUTENTICAÇÃO =====
@@ -2008,7 +2013,7 @@ function renderProducts() {
         
         productEl.innerHTML = `
             <div class="relative">
-                <img src="${firstColor.image || 'https://via.placeholder.com/400x300'}" alt="${product.title}" class="product-main-image">
+                <img src="${firstColor.image || 'https://via.placeholder.com/400x300'}" alt="${product.title}" class="product-main-image" loading="lazy">
                 <span class="absolute top-3 left-3 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">${categoryName}</span>
                 ${totalStock === 0 ? '<span class="absolute top-3 right-3 bg-red-600 text-white text-xs px-2 py-1 rounded-full">Esgotado</span>' : ''}
             </div>
@@ -2074,6 +2079,9 @@ function renderProducts() {
         elements.productsGrid.appendChild(productEl);
     });
     
+    // Aplicar efeitos de carregamento nas imagens
+    document.querySelectorAll('.product-main-image').forEach(addImageLoadingEffect);
+    
     // Adicionar event listeners para seleção de cor
     document.querySelectorAll('.color-option').forEach(colorBtn => {
         colorBtn.addEventListener('click', (e) => {
@@ -2106,6 +2114,7 @@ function selectProductColor(productId, colorIndex) {
     
     // Atualizar imagem principal
     mainImage.src = product.colors[colorIndex].image;
+    addImageLoadingEffect(mainImage);
     
     // Atualizar seleção de cor
     colorOptions.forEach((option, index) => {
@@ -2273,7 +2282,7 @@ function updateCartPageUI() {
             
             cartItemEl.innerHTML = `
                 <div class="md:col-span-6 flex items-center">
-                    <img src="${item.image}" alt="${item.title}" class="w-16 h-16 object-cover rounded-md mr-4">
+                    <img src="${item.image}" alt="${item.title}" class="w-16 h-16 object-cover rounded-md mr-4" loading="lazy">
                     <div>
                         <div class="font-medium text-lg">${item.title}</div>
                         <div class="text-sm text-gray-500">Cor: ${item.colorName}</div>
@@ -2304,6 +2313,9 @@ function updateCartPageUI() {
         
         elements.cartTotalPage.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
         elements.modalTotal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        
+        // Aplicar efeitos de carregamento nas imagens do carrinho
+        document.querySelectorAll('.cart-item img').forEach(addImageLoadingEffect);
         
         // Adicionar event listeners aos botões
         document.querySelectorAll('.increase-quantity').forEach(btn => {
@@ -2580,7 +2592,7 @@ function renderAdminProducts() {
         productRow.innerHTML = `
             <td class="py-4 px-4">
                 <div class="flex items-center">
-                    <img src="${firstImage}" alt="${product.title}" class="w-12 h-12 object-cover rounded-md mr-3">
+                    <img src="${firstImage}" alt="${product.title}" class="w-12 h-12 object-cover rounded-md mr-3" loading="lazy">
                     <div>
                         <p class="font-medium">${product.title}</p>
                         <p class="text-sm text-gray-500">${product.description}</p>
@@ -2627,6 +2639,9 @@ function renderAdminProducts() {
         
         elements.adminProductsList.appendChild(productRow);
     });
+    
+    // Aplicar efeitos de carregamento nas imagens do admin
+    document.querySelectorAll('#admin-products-list img').forEach(addImageLoadingEffect);
     
     document.querySelectorAll('.edit-product').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2688,7 +2703,7 @@ function filterAdminProducts() {
         productRow.innerHTML = `
             <td class="py-4 px-4">
                 <div class="flex items-center">
-                    <img src="${firstImage}" alt="${product.title}" class="w-12 h-12 object-cover rounded-md mr-3">
+                    <img src="${firstImage}" alt="${product.title}" class="w-12 h-12 object-cover rounded-md mr-3" loading="lazy">
                     <div>
                         <p class="font-medium">${product.title}</p>
                         <p class="text-sm text-gray-500">${product.description}</p>
@@ -2735,6 +2750,9 @@ function filterAdminProducts() {
         
         elements.adminProductsList.appendChild(productRow);
     });
+    
+    // Aplicar efeitos de carregamento nas imagens filtradas
+    document.querySelectorAll('#admin-products-list img').forEach(addImageLoadingEffect);
     
     // Adicionar event listeners aos botões
     document.querySelectorAll('.edit-product').forEach(btn => {
