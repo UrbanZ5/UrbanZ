@@ -319,6 +319,13 @@
             transform: scale(1.1);
         }
         
+        /* Estilo para o nome da cor selecionada */
+        .selected-color-name {
+            font-weight: 500;
+            color: #3b82f6;
+            font-size: 0.875rem;
+        }
+        
         /* Novos estilos para responsividade */
         .mobile-menu-btn {
             display: none;
@@ -2031,8 +2038,19 @@ function renderProducts() {
                                 ></div>
                             `).join('')}
                         </div>
+                        <div class="mt-2">
+                            <span class="text-sm text-gray-600">Cor selecionada: </span>
+                            <span class="selected-color-name" data-product-id="${product.id}">${firstColor.name || 'Sem nome'}</span>
+                        </div>
                     </div>
-                ` : ''}
+                ` : `
+                    <div class="mb-4">
+                        <div class="mb-2">
+                            <span class="text-sm text-gray-600">Cor: </span>
+                            <span class="selected-color-name font-medium text-blue-600">${firstColor.name || 'Sem nome'}</span>
+                        </div>
+                    </div>
+                `}
                 
                 <div class="mb-4">
                     <p class="text-sm font-medium mb-2 text-gray-700">Tamanhos:</p>
@@ -2084,6 +2102,7 @@ function selectProductColor(productId, colorIndex) {
     const mainImage = productCard.querySelector('.product-main-image');
     const colorOptions = productCard.querySelectorAll('.color-option');
     const sizesContainer = productCard.querySelector('.product-sizes');
+    const selectedColorName = productCard.querySelector('.selected-color-name');
     
     // Atualizar imagem principal
     mainImage.src = product.colors[colorIndex].image;
@@ -2092,6 +2111,11 @@ function selectProductColor(productId, colorIndex) {
     colorOptions.forEach((option, index) => {
         option.classList.toggle('selected', index === colorIndex);
     });
+    
+    // Atualizar nome da cor selecionada
+    if (selectedColorName) {
+        selectedColorName.textContent = product.colors[colorIndex].name;
+    }
     
     // Atualizar tamanhos disponíveis
     const selectedColor = product.colors[colorIndex];
