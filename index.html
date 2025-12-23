@@ -22,7 +22,9 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--urbanz-cream);
         }
-        
+        .cor {
+            background-color: var(--urbanz-dark);
+        }
         .login-container {
             min-height: 100vh;
             display: flex;
@@ -35,6 +37,8 @@
             right: 0;
             bottom: 0;
             z-index: 9999;
+            display: none;
+            color: white;
         }
         
         .login-card {
@@ -723,6 +727,28 @@
                 -webkit-tap-highlight-color: transparent;
                 touch-action: manipulation;
             }
+
+            /* Correção específica para botões de ação em mobile */
+            .delete-product, .delete-category {
+                width: auto !important;
+                height: auto !important;
+                min-height: 44px !important;
+                padding: 10px 14px !important;
+                margin: 4px !important;
+                font-size: 14px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                border-radius: 6px !important;
+                background-color: #ef4444 !important;
+                color: white !important;
+                border: none !important;
+                cursor: pointer !important;
+            }
+
+            .delete-product:hover, .delete-category:hover {
+                background-color: #dc2626 !important;
+            }
         }
         
         @media (max-width: 640px) {
@@ -771,6 +797,48 @@
                 font-size: 14px;
             }
         }
+
+        /* Estilo para mostrar estoque nos botões de tamanho */
+        .size-btn.with-stock {
+            position: relative;
+        }
+
+        .size-btn.out-of-stock {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* NOVO: Estilo para produtos esgotados */
+        .product-card.sold-out {
+            opacity: 0.6;
+            position: relative;
+            order: 999; /* Garante que produtos esgotados vão para o final */
+        }
+
+        .product-card.sold-out::after {
+            content: "ESGOTADO";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 10;
+        }
+
+        .product-card.sold-out:hover {
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        /* Estilo para produtos disponíveis */
+        .product-card.available {
+            order: 1;
+        }
     </style>
 </head>
 <body>
@@ -783,7 +851,7 @@
         </div>
     </div>
 
-    <!-- Tela de Login -->
+    <!-- Tela de Login (oculta por padrão) -->
     <div id="login-section" class="login-container">
         <div class="login-card">
             <div class="login-header">
@@ -947,45 +1015,29 @@
             <span id="mobile-cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">0</span>
         </button>
 
-        <footer class="bg-white border-t mt-12">
-            <div class="container mx-auto px-4 py-8">
+        <footer class=" cor border-t mt-12 style="background-color: var(--urbanz-dark)>
+            <div class="container mx-auto px-4 py-8 ">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div>
                         <div class="brand-container mb-4">
                             <img src="WhatsApp Image 2025-09-24 at 17.31.17.jpeg" alt="UBZ UrbanZ" class="brand-logo" style="height: 32px;">
-                            <h3 class="font-bold text-lg brand-texto">UrbanZ</h3>
+                            <h3 class="font-bold text-lg brand-texto text-white">UrbanZ</h3>
                         </div>
-                        <p class="text-gray-600 text-sm">As melhores camisas e shorts para o seu estilo.</p>
+                        <p class="text-gray-600 text-sm text-white ">As melhores camisas e shorts para o seu estilo.</p>
                     </div>
                     
                     <div>
-                        <h4 class="font-semibold mb-4">Contato</h4>
-                        <p class="text-gray-600 text-sm">
+                        <h4 class="font-semibold mb-4 text-white">Contato</h4>
+                        <p class="text-gray-600 text-sm text-white">   
                             <i class="fas fa-whatsapp mr-2 text-green-500"></i>
                             (84) 92000-3152
                         </p>
                        
                     </div>
                     
-                    <div>
-                        <h4 class="font-semibold mb-4">Redes Sociais</h4>
-                        <div class="flex gap-4">
-                            <a href="https://www.instagram.com/use.urbanz/" class="text-gray-600 hover:text-blue-600">
-                                <i class="fab fa-instagram text-lg"></i>
-                            </a>
-                            <a href="#" class="text-gray-600 hover:text-blue-600">
-                                <i class="fab fa-facebook text-lg"></i>
-                            </a>
-                            <a href="#" class="text-gray-600 hover:text-blue-600">
-                                <i class="fab fa-twitter text-lg"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                 
                 
-                <div class="border-t mt-8 pt-6 text-center text-sm text-gray-500">
-                    © 2023 UBZ UrbanZ — Todos os direitos reservados
-                </div>
+
             </div>
         </footer>
     </div>
@@ -1455,12 +1507,14 @@
             localStorage.removeItem('auth_token');
             
             document.getElementById('admin-section').style.display = 'none';
-            document.getElementById('login-section').style.display = 'flex';
-            document.getElementById('store-section').style.display = 'none';
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('store-section').style.display = 'block';
             document.getElementById('cart-section').classList.remove('active');
             
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
+            
+            window.location.hash = '';
         }
 
         async function verifyAuth() {
@@ -1533,26 +1587,22 @@
 
         // ===== ELEMENTOS DO DOM =====
         const elements = {
-            // Seções principais
             loginSection: document.getElementById('login-section'),
             storeSection: document.getElementById('store-section'),
             cartSection: document.getElementById('cart-section'),
             adminSection: document.getElementById('admin-section'),
             
-            // Login
             username: document.getElementById('username'),
             password: document.getElementById('password'),
             loginBtn: document.getElementById('login-btn'),
             logoutBtn: document.getElementById('logout-btn'),
             userDisplay: document.getElementById('user-display'),
             
-            // Navegação
             toggleStoreBtn: document.getElementById('toggle-store'),
             backToStore: document.getElementById('back-to-store'),
             continueShopping: document.getElementById('continue-shopping'),
             continueShopping2: document.getElementById('continue-shopping-2'),
             
-            // Loja
             productsGrid: document.getElementById('products-grid'),
             cartCount: document.getElementById('cart-count'),
             productsCount: document.getElementById('products-count'),
@@ -1566,7 +1616,6 @@
             mobileCartBtn: document.getElementById('mobile-cart-btn'),
             mobileCartCount: document.getElementById('mobile-cart-count'),
             
-            // Tela do carrinho
             emptyCartPage: document.getElementById('empty-cart-page'),
             cartItemsPage: document.getElementById('cart-items-page'),
             cartItemsListPage: document.getElementById('cart-items-list-page'),
@@ -1574,7 +1623,6 @@
             cartItemsCount: document.getElementById('cart-items-count'),
             checkoutBtnPage: document.getElementById('checkout-btn-page'),
             
-            // Checkout
             checkoutModal: document.getElementById('checkout-modal'),
             checkoutOverlay: document.getElementById('checkout-overlay'),
             cancelCheckout: document.getElementById('cancel-checkout'),
@@ -1591,11 +1639,9 @@
             complement: document.getElementById('complement'),
             paymentMethod: document.getElementById('payment-method'),
             
-            // Toast
             toastNotification: document.getElementById('toast-notification'),
             toastMessage: document.getElementById('toast-message'),
             
-            // Mobile
             mobileMenuBtn: document.getElementById('mobile-menu-btn'),
             mobileFilterBtn: document.getElementById('mobile-filter-btn'),
             mobileFilterMenu: document.getElementById('mobile-filter-menu'),
@@ -1603,7 +1649,6 @@
             applyFilters: document.getElementById('apply-filters'),
             productsCountMobile: document.getElementById('products-count-mobile'),
             
-            // Admin
             adminTabs: document.querySelectorAll('.nav-tab'),
             tabContents: document.querySelectorAll('.tab-content'),
             totalProducts: document.getElementById('total-products'),
@@ -1617,7 +1662,6 @@
             addCategoryBtn: document.getElementById('add-category-btn'),
             categoriesList: document.getElementById('categories-list'),
             
-            // Modais
             addProductModal: document.getElementById('add-product-modal'),
             addCategoryModal: document.getElementById('add-category-modal'),
             productForm: document.getElementById('product-form'),
@@ -1748,11 +1792,13 @@
                                 <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
                                 <p class="text-sm text-gray-500">Clique ou arraste uma imagem</p>
                             </div>
-                            <div class="image-preview-container hidden">
+                            <div class="image-preview-container ${colorData?.image ? '' : 'hidden'}">
                                 <img class="image-preview mx-auto" src="${colorData?.image || ''}" alt="">
                                 <button type="button" class="mt-2 text-sm text-red-600 remove-image-btn" onclick="removeImage(this)">Remover imagem</button>
                             </div>
                         </div>
+                        <!-- Campo oculto para armazenar a imagem Base64 -->
+                        <input type="hidden" class="color-image-data" value="${colorData?.image || ''}">
                     </div>
                 </div>
                 
@@ -1781,7 +1827,6 @@
             
             elements.colorsContainer.appendChild(colorDiv);
             
-            // Se há dados de imagem, mostrar preview
             if (colorData?.image) {
                 const uploadArea = colorDiv.querySelector('.image-upload-area');
                 const placeholder = uploadArea.querySelector('.upload-placeholder');
@@ -1791,7 +1836,6 @@
                 previewContainer.classList.remove('hidden');
             }
             
-            // Adicionar event listener para clique na área de upload
             const uploadArea = colorDiv.querySelector('.image-upload-area');
             const fileInput = colorDiv.querySelector('.color-image');
             
@@ -1810,23 +1854,25 @@
             if (!file) return;
             
             try {
-                // Comprimir imagem
                 const compressedFile = await compressImage(file);
-                
-                // Converter para base64
                 const base64 = await fileToBase64(compressedFile);
                 
-                // Mostrar preview
                 const uploadArea = input.parentElement;
                 const placeholder = uploadArea.querySelector('.upload-placeholder');
                 const previewContainer = uploadArea.querySelector('.image-preview-container');
                 const preview = uploadArea.querySelector('.image-preview');
+                const imageDataInput = uploadArea.nextElementSibling; // Campo oculto
                 
                 preview.src = base64;
                 placeholder.style.display = 'none';
                 previewContainer.classList.remove('hidden');
                 
-                // Armazenar dados da imagem
+                // Salvar no campo oculto também
+                if (imageDataInput && imageDataInput.classList.contains('color-image-data')) {
+                    imageDataInput.value = base64;
+                }
+                
+                // Salvar no dataset do input também
                 input.dataset.imageData = base64;
                 
             } catch (error) {
@@ -1861,9 +1907,13 @@
             const placeholder = uploadArea.querySelector('.upload-placeholder');
             const previewContainer = uploadArea.querySelector('.image-preview-container');
             const fileInput = uploadArea.querySelector('.color-image');
+            const imageDataInput = uploadArea.nextElementSibling;
             
             fileInput.value = '';
             fileInput.dataset.imageData = '';
+            if (imageDataInput) {
+                imageDataInput.value = '';
+            }
             placeholder.style.display = 'block';
             previewContainer.classList.add('hidden');
         }
@@ -1871,19 +1921,16 @@
         // ===== GERENCIAMENTO DE DADOS =====
         async function loadData() {
             try {
-                // Carregar produtos
                 const response = await fetch(`${API_BASE_URL}/api/products`);
                 const data = await response.json();
                 
                 products = data.products || [];
                 
-                // Carregar categorias
                 const catResponse = await fetch(`${API_BASE_URL}/api/categories`);
                 const catData = await catResponse.json();
                 
                 categories = catData.categories || [];
                 
-                // Se não houver categorias, criar algumas padrão
                 if (categories.length === 0) {
                     categories = [
                         {
@@ -1899,7 +1946,6 @@
                     ];
                 }
                 
-                // Filtrar produtos ativos para exibição na loja
                 filteredProducts = products.filter(p => p.status === 'active');
                 
                 console.log('Dados carregados:', {
@@ -1911,7 +1957,6 @@
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
                 
-                // Dados de fallback
                 products = [
                     {
                         id: 1,
@@ -1953,53 +1998,51 @@
         }
 
         async function saveProducts() {
-    if (!checkAuth()) {
-        showToast('Não autorizado. Faça login novamente.', 'error');
-        return false;
-    }
-    
-    try {
-        console.log('Salvando produtos...', products);
-        
-        // Preparar dados para envio
-        const productsToSave = products.map(product => ({
-            id: product.id,
-            title: product.title,
-            category: product.category,
-            price: product.price,
-            description: product.description,
-            status: product.status,
-            colors: product.colors || [] // Garantir que colors existe
-        }));
-        
-        const response = await fetch(`${API_BASE_URL}/api/products`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify({ products: productsToSave })
-        });
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Erro na resposta:', errorText);
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
+            if (!checkAuth()) {
+                showToast('Não autorizado. Faça login novamente.', 'error');
+                return false;
+            }
+            
+            try {
+                console.log('Salvando produtos...', products);
+                
+                const productsToSave = products.map(product => ({
+                    id: product.id,
+                    title: product.title,
+                    category: product.category,
+                    price: product.price,
+                    description: product.description,
+                    status: product.status,
+                    colors: product.colors || []
+                }));
+                
+                const response = await fetch(`${API_BASE_URL}/api/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ products: productsToSave })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Erro na resposta:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Produtos salvos com sucesso:', data);
+                
+                await loadData();
+                
+                return data.success;
+            } catch (error) {
+                console.error('Erro ao salvar produtos:', error);
+                showToast(`Erro ao salvar produtos: ${error.message}`, 'error');
+                return false;
+            }
         }
-        
-        const data = await response.json();
-        console.log('Produtos salvos com sucesso:', data);
-        
-        // Recarregar dados do servidor
-        await loadData();
-        
-        return data.success;
-    } catch (error) {
-        console.error('Erro ao salvar produtos:', error);
-        showToast(`Erro ao salvar produtos: ${error.message}`, 'error');
-        return false;
-    }
-}
 
         async function saveCategories() {
             if (!checkAuth()) {
@@ -2029,6 +2072,42 @@
         function getNextProductId() {
             if (products.length === 0) return 1;
             return Math.max(...products.map(p => p.id)) + 1;
+        }
+
+        // ===== FUNÇÕES PARA GERENCIAMENTO DE ESTOQUE =====
+        function calculateTotalStock(product) {
+            if (!product.colors) return 0;
+            
+            return product.colors.reduce((total, color) => {
+                return total + (color.sizes?.reduce((colorTotal, size) => colorTotal + size.stock, 0) || 0);
+            }, 0);
+        }
+
+        function isProductSoldOut(product) {
+            return calculateTotalStock(product) === 0;
+        }
+
+        function getAvailableColorsStock(product) {
+            if (!product.colors) return [];
+            
+            return product.colors.map((color, index) => {
+                const colorStock = color.sizes?.reduce((total, size) => total + size.stock, 0) || 0;
+                return {
+                    index: index,
+                    name: color.name,
+                    stock: colorStock,
+                    isSoldOut: colorStock === 0
+                };
+            });
+        }
+
+        function getSortedColorsByStock(product) {
+            const colorsWithStock = getAvailableColorsStock(product);
+            return colorsWithStock.sort((a, b) => {
+                if (a.isSoldOut && !b.isSoldOut) return 1;
+                if (!a.isSoldOut && b.isSoldOut) return -1;
+                return b.stock - a.stock;
+            });
         }
 
         // ===== FUNÇÕES DE VISUALIZAÇÃO =====
@@ -2085,6 +2164,8 @@
             setupRouting();
             setupEventListeners();
             
+            showStoreView();
+            
             renderCategoryFilters();
             updateCartUI();
             renderCategories();
@@ -2093,7 +2174,6 @@
 
         // ===== CONFIGURAÇÃO DE EVENT LISTENERS =====
         function setupEventListeners() {
-            // Sistema de autenticação
             elements.loginBtn.addEventListener('click', handleLogin);
             elements.logoutBtn.addEventListener('click', handleLogout);
             elements.password.addEventListener('keypress', function(e) {
@@ -2102,7 +2182,6 @@
                 }
             });
             
-            // Navegação
             elements.toggleStoreBtn.addEventListener('click', () => {
                 window.location.hash = '';
                 showStoreView();
@@ -2112,7 +2191,6 @@
             elements.continueShopping.addEventListener('click', showStoreView);
             elements.continueShopping2.addEventListener('click', showStoreView);
             
-            // Event listeners da loja
             elements.searchInput.addEventListener('input', filterProducts);
             elements.searchInputMobile.addEventListener('input', filterProducts);
             elements.sortSelect.addEventListener('change', filterProducts);
@@ -2126,17 +2204,14 @@
             elements.cancelCheckout.addEventListener('click', closeCheckoutModal);
             elements.checkoutForm.addEventListener('submit', handleCheckout);
             
-            // Event listeners para o checkout
             document.querySelectorAll('input[name="delivery-type"]').forEach(radio => {
                 radio.addEventListener('change', toggleDeliveryFields);
             });
             
-            // Event listeners para mobile
             elements.mobileFilterBtn.addEventListener('click', openMobileFilterMenu);
             elements.closeFilterMenu.addEventListener('click', closeMobileFilterMenu);
             elements.applyFilters.addEventListener('click', applyMobileFilters);
             
-            // Event listeners do admin
             elements.adminTabs.forEach(tab => {
                 tab.addEventListener('click', () => switchAdminTab(tab.dataset.tab));
             });
@@ -2146,10 +2221,8 @@
             elements.adminSearch.addEventListener('input', filterAdminProducts);
             elements.adminCategoryFilter.addEventListener('change', filterAdminProducts);
             
-            // Event listeners para cores
             elements.addColorBtn.addEventListener('click', () => addColorVariant());
             
-            // Event listeners para categorias
             elements.addCategoryBtn.addEventListener('click', openAddCategoryModal);
             elements.cancelCategory.addEventListener('click', closeAddCategoryModal);
             elements.categoryForm.addEventListener('submit', handleCategorySubmit);
@@ -2184,7 +2257,6 @@
             const deliveryFields = elements.deliveryFields;
             const storeAddress = elements.storeAddress;
             
-            // Atualizar seleção visual dos botões
             document.querySelectorAll('.delivery-option').forEach(option => {
                 option.classList.remove('selected');
             });
@@ -2196,7 +2268,6 @@
                 storeAddress.classList.remove('active');
                 storeAddress.style.display = 'none';
                 
-                // Tornar campos obrigatórios
                 elements.street.required = true;
                 elements.number.required = true;
                 elements.neighborhood.required = true;
@@ -2207,12 +2278,10 @@
                 storeAddress.classList.add('active');
                 storeAddress.style.display = 'block';
                 
-                // Remover obrigatoriedade dos campos
                 elements.street.required = false;
                 elements.number.required = false;
                 elements.neighborhood.required = false;
                 
-                // Limpar campos
                 elements.street.value = '';
                 elements.number.value = '';
                 elements.neighborhood.value = '';
@@ -2289,21 +2358,44 @@
                 return;
             }
             
-            filteredProducts.forEach(product => {
+            // Ordenar produtos: disponíveis primeiro, depois esgotados (corrigido)
+            const sortedProducts = [...filteredProducts].sort((a, b) => {
+                const aSoldOut = isProductSoldOut(a);
+                const bSoldOut = isProductSoldOut(b);
+                
+                // Se ambos estão esgotados ou ambos estão disponíveis, mantém a ordem original
+                if (aSoldOut && bSoldOut) return 0;
+                if (!aSoldOut && !bSoldOut) return 0;
+                
+                // Disponíveis vêm primeiro
+                if (!aSoldOut && bSoldOut) return -1;
+                if (aSoldOut && !bSoldOut) return 1;
+                
+                return 0;
+            });
+            
+            sortedProducts.forEach(product => {
                 const productEl = document.createElement('div');
-                productEl.className = 'product-card bg-white rounded-xl overflow-hidden shadow';
+                
+                // Ordenar cores: disponíveis primeiro
+                const sortedColors = getSortedColorsByStock(product);
+                const firstAvailableColorIndex = sortedColors.findIndex(c => !c.isSoldOut);
+                const selectedColorIndex = firstAvailableColorIndex !== -1 ? sortedColors[firstAvailableColorIndex].index : 0;
+                const selectedColor = product.colors[selectedColorIndex];
+                
+                const totalStock = calculateTotalStock(product);
+                const isSoldOut = totalStock === 0;
+                
+                // Adicionar classes baseadas na disponibilidade
+                productEl.className = `product-card bg-white rounded-xl overflow-hidden shadow ${isSoldOut ? 'sold-out' : 'available'}`;
                 
                 const categoryName = getCategoryName(product.category);
-                const firstColor = product.colors?.[0] || {};
-                const totalStock = product.colors?.reduce((total, color) => {
-                    return total + (color.sizes?.reduce((colorTotal, size) => colorTotal + size.stock, 0) || 0);
-                }, 0) || 0;
                 
                 productEl.innerHTML = `
                     <div class="relative">
-                        <img src="${firstColor.image || 'https://via.placeholder.com/400x300'}" alt="${product.title}" class="product-main-image" loading="lazy">
+                        <img src="${selectedColor.image || 'https://via.placeholder.com/400x300'}" alt="${product.title}" class="product-main-image" loading="lazy">
                         <span class="absolute top-3 left-3 text-white text-xs px-2 py-1 rounded-full" style="background-color: var(--urbanz-primary);">${categoryName}</span>
-                        ${totalStock === 0 ? '<span class="absolute top-3 right-3 bg-red-600 text-white text-xs px-2 py-1 rounded-full">Esgotado</span>' : ''}
+                        ${isSoldOut ? '<span class="absolute top-3 right-3 bg-red-600 text-white text-xs px-2 py-1 rounded-full">ESGOTADO</span>' : ''}
                     </div>
                     <div class="p-5">
                         <h3 class="font-semibold text-lg mb-1 text-gray-800">${product.title}</h3>
@@ -2321,45 +2413,58 @@
                             <div class="mb-4">
                                 <p class="text-sm font-medium mb-2 text-gray-700">Cores disponíveis:</p>
                                 <div class="color-selector">
-                                    ${product.colors.map((color, index) => `
+                                    ${sortedColors.map((colorInfo) => `
                                         <div 
-                                            class="color-option ${index === 0 ? 'selected' : ''}" 
+                                            class="color-option ${colorInfo.index === selectedColorIndex ? 'selected' : ''} ${colorInfo.isSoldOut ? 'out-of-stock' : ''}" 
                                             data-product-id="${product.id}"
-                                            data-color-index="${index}"
-                                            style="background-image: url('${color.image}'); background-size: cover; background-position: center;"
-                                            title="${color.name}"
+                                            data-color-index="${colorInfo.index}"
+                                            style="background-image: url('${product.colors[colorInfo.index].image}'); background-size: cover; background-position: center;"
+                                            title="${colorInfo.name} ${colorInfo.isSoldOut ? '(Esgotada)' : ''}"
+                                            ${colorInfo.isSoldOut ? 'disabled' : ''}
                                         ></div>
                                     `).join('')}
                                 </div>
                                 <div class="mt-2">
                                     <span class="text-sm text-gray-600">Cor selecionada: </span>
-                                    <span class="selected-color-name" data-product-id="${product.id}">${firstColor.name || 'Sem nome'}</span>
+                                    <span class="selected-color-name" data-product-id="${product.id}">${selectedColor.name || 'Sem nome'}</span>
                                 </div>
                             </div>
                         ` : `
                             <div class="mb-4">
                                 <div class="mb-2">
                                     <span class="text-sm text-gray-600">Cor: </span>
-                                    <span class="selected-color-name font-medium" style="color: var(--urbanz-primary);">${firstColor.name || 'Sem nome'}</span>
+                                    <span class="selected-color-name font-medium" style="color: var(--urbanz-primary);">${selectedColor.name || 'Sem nome'}</span>
                                 </div>
                             </div>
                         `}
                         
                         <div class="mb-4">
                             <p class="text-sm font-medium mb-2 text-gray-700">Tamanhos:</p>
-                            <div class="flex flex-wrap gap-2 product-sizes" data-color-index="0">
-                                ${firstColor.sizes?.map(size => `
+                            <div class="flex flex-wrap gap-2 product-sizes" data-color-index="${selectedColorIndex}">
+                                ${selectedColor.sizes?.map(size => {
+                                    const stock = size.stock || 0;
+                                    const isOutOfStock = stock === 0;
+                                    return `
                                     <button 
-                                        class="size-btn ${size.stock === 0 ? 'out-of-stock' : ''} border rounded-md px-3 py-1 text-sm"
+                                        class="size-btn ${isOutOfStock ? 'out-of-stock' : ''} border rounded-md px-3 py-1 text-sm"
                                         data-product-id="${product.id}"
-                                        data-color-index="0"
+                                        data-color-index="${selectedColorIndex}"
                                         data-size="${size.name}"
-                                        ${size.stock === 0 ? 'disabled' : ''}
+                                        ${isOutOfStock ? 'disabled' : ''}
                                     >
-                                        ${size.name} ${size.stock === 0 ? '(Esgotado)' : ''}
+                                        ${size.name}
                                     </button>
-                                `).join('') || '<span class="text-sm text-gray-500">Nenhum tamanho disponível</span>'}
+                                `}).join('') || '<span class="text-sm text-gray-500">Nenhum tamanho disponível</span>'}
                             </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button class="w-full btn-primary py-2 rounded-lg add-to-cart-btn" 
+                                    data-product-id="${product.id}" 
+                                    data-color-index="${selectedColorIndex}"
+                                    ${isSoldOut ? 'disabled' : ''}>
+                                ${isSoldOut ? 'ESGOTADO' : 'Adicionar ao Carrinho'}
+                            </button>
                         </div>
                     </div>
                 `;
@@ -2367,11 +2472,10 @@
                 elements.productsGrid.appendChild(productEl);
             });
             
-            // Aplicar efeitos de carregamento nas imagens
             document.querySelectorAll('.product-main-image').forEach(addImageLoadingEffect);
             
-            // Adicionar event listeners para seleção de cor
-            document.querySelectorAll('.color-option').forEach(colorBtn => {
+            // Event listeners para seleção de cor
+            document.querySelectorAll('.color-option:not(.out-of-stock)').forEach(colorBtn => {
                 colorBtn.addEventListener('click', (e) => {
                     const productId = parseInt(e.target.dataset.productId);
                     const colorIndex = parseInt(e.target.dataset.colorIndex);
@@ -2379,13 +2483,33 @@
                 });
             });
             
-            // Adicionar event listeners aos botões de tamanho
+            // Event listeners para botões de tamanho
             document.querySelectorAll('.size-btn:not(.out-of-stock)').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const productId = parseInt(e.target.dataset.productId);
                     const colorIndex = parseInt(e.target.dataset.colorIndex);
                     const size = e.target.dataset.size;
                     addToCart(productId, colorIndex, size);
+                });
+            });
+            
+            // Event listeners para botão de adicionar ao carrinho
+            document.querySelectorAll('.add-to-cart-btn:not(:disabled)').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const productId = parseInt(e.target.dataset.productId);
+                    const colorIndex = parseInt(e.target.dataset.colorIndex);
+                    
+                    const product = products.find(p => p.id === productId);
+                    if (!product) return;
+                    
+                    const color = product.colors[colorIndex];
+                    const availableSize = color.sizes?.find(s => s.stock > 0);
+                    
+                    if (availableSize) {
+                        addToCart(productId, colorIndex, availableSize.name);
+                    } else {
+                        showToast('Nenhum tamanho disponível para esta cor.', 'warning');
+                    }
                 });
             });
         }
@@ -2399,6 +2523,7 @@
             const colorOptions = productCard.querySelectorAll('.color-option');
             const sizesContainer = productCard.querySelector('.product-sizes');
             const selectedColorName = productCard.querySelector('.selected-color-name');
+            const addToCartBtn = productCard.querySelector('.add-to-cart-btn');
             
             // Atualizar imagem principal
             mainImage.src = product.colors[colorIndex].image;
@@ -2406,7 +2531,8 @@
             
             // Atualizar seleção de cor
             colorOptions.forEach((option, index) => {
-                option.classList.toggle('selected', index === colorIndex);
+                const optionColorIndex = parseInt(option.dataset.colorIndex);
+                option.classList.toggle('selected', optionColorIndex === colorIndex);
             });
             
             // Atualizar nome da cor selecionada
@@ -2416,19 +2542,31 @@
             
             // Atualizar tamanhos disponíveis
             const selectedColor = product.colors[colorIndex];
-            sizesContainer.innerHTML = selectedColor.sizes?.map(size => `
-                <button 
-                    class="size-btn ${size.stock === 0 ? 'out-of-stock' : ''} border rounded-md px-3 py-1 text-sm"
-                    data-product-id="${productId}"
-                    data-color-index="${colorIndex}"
-                    data-size="${size.name}"
-                    ${size.stock === 0 ? 'disabled' : ''}
-                >
-                    ${size.name} ${size.stock === 0 ? '(Esgotado)' : ''}
-                </button>
-            `).join('') || '<span class="text-sm text-gray-500">Nenhum tamanho disponível</span>';
+            sizesContainer.innerHTML = selectedColor.sizes?.map(size => {
+                const stock = size.stock || 0;
+                const isOutOfStock = stock === 0;
+                return `
+                    <button 
+                        class="size-btn ${isOutOfStock ? 'out-of-stock' : ''} border rounded-md px-3 py-1 text-sm"
+                        data-product-id="${productId}"
+                        data-color-index="${colorIndex}"
+                        data-size="${size.name}"
+                        ${isOutOfStock ? 'disabled' : ''}
+                    >
+                        ${size.name}
+                    </button>
+                `;
+            }).join('') || '<span class="text-sm text-gray-500">Nenhum tamanho disponível</span>';
             
-            // Adicionar event listeners aos novos botões
+            // Atualizar botão de adicionar ao carrinho
+            if (addToCartBtn) {
+                const colorStock = selectedColor.sizes?.reduce((total, size) => total + size.stock, 0) || 0;
+                addToCartBtn.disabled = colorStock === 0;
+                addToCartBtn.textContent = colorStock === 0 ? 'ESGOTADO' : 'Adicionar ao Carrinho';
+                addToCartBtn.dataset.colorIndex = colorIndex;
+            }
+            
+            // Adicionar event listeners aos novos botões de tamanho
             sizesContainer.querySelectorAll('.size-btn:not(.out-of-stock)').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const size = e.target.dataset.size;
@@ -2462,11 +2600,21 @@
                 return matchesSearch && matchesCategory && isActive;
             });
             
-            // Ordenar produtos
+            // Ordenar produtos: disponíveis primeiro, depois por preço se especificado
             if (sortBy === 'price-asc') {
                 filteredProducts.sort((a, b) => a.price - b.price);
             } else if (sortBy === 'price-desc') {
                 filteredProducts.sort((a, b) => b.price - a.price);
+            } else {
+                // Ordenação padrão: disponíveis primeiro, esgotados por último
+                filteredProducts.sort((a, b) => {
+                    const aSoldOut = isProductSoldOut(a);
+                    const bSoldOut = isProductSoldOut(b);
+                    
+                    if (!aSoldOut && bSoldOut) return -1;
+                    if (aSoldOut && !bSoldOut) return 1;
+                    return 0;
+                });
             }
             
             elements.productsCount.textContent = filteredProducts.length;
@@ -2528,7 +2676,11 @@
                 });
             }
             
+            // Atualizar estoque localmente (será salvo no backend depois)
+            sizeInfo.stock -= 1;
+            
             updateCartUI();
+            updateProductDisplay(productId, colorIndex);
             showToast('Item adicionado ao carrinho!', 'success');
             
             // Feedback visual
@@ -2541,6 +2693,45 @@
                     addedItem.style.color = '';
                 }, 500);
             }
+        }
+
+        function updateProductDisplay(productId, colorIndex) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            // Atualizar display do produto na loja
+            const productCards = document.querySelectorAll(`[data-product-id="${productId}"]`);
+            productCards.forEach(card => {
+                if (card.closest('.product-card')) {
+                    const productCard = card.closest('.product-card');
+                    const currentColorIndex = parseInt(productCard.querySelector('.color-option.selected')?.dataset.colorIndex || colorIndex);
+                    
+                    // Recarregar a visualização do produto
+                    selectProductColor(productId, currentColorIndex);
+                    
+                    // Verificar se o produto está esgotado agora
+                    const totalStock = calculateTotalStock(product);
+                    if (totalStock === 0) {
+                        productCard.classList.add('sold-out');
+                        productCard.classList.remove('available');
+                        
+                        const esgotadoBadge = productCard.querySelector('.absolute.top-3.right-3');
+                        if (esgotadoBadge) {
+                            esgotadoBadge.textContent = 'ESGOTADO';
+                            esgotadoBadge.className = 'absolute top-3 right-3 bg-red-600 text-white text-xs px-2 py-1 rounded-full';
+                        }
+                        
+                        const addToCartBtn = productCard.querySelector('.add-to-cart-btn');
+                        if (addToCartBtn) {
+                            addToCartBtn.disabled = true;
+                            addToCartBtn.textContent = 'ESGOTADO';
+                        }
+                    } else {
+                        productCard.classList.remove('sold-out');
+                        productCard.classList.add('available');
+                    }
+                }
+            });
         }
 
         function updateCartUI() {
@@ -2604,10 +2795,8 @@
                 elements.cartTotalPage.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
                 elements.modalTotal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
                 
-                // Aplicar efeitos de carregamento nas imagens do carrinho
                 document.querySelectorAll('.cart-item img').forEach(addImageLoadingEffect);
                 
-                // Adicionar event listeners aos botões
                 document.querySelectorAll('.increase-quantity').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const id = parseInt(e.target.dataset.id);
@@ -2651,7 +2840,9 @@
             
             if (item.quantity < sizeInfo.stock) {
                 item.quantity += 1;
+                sizeInfo.stock -= 1;
                 updateCartUI();
+                updateProductDisplay(productId, colorIndex);
             } else {
                 showToast(`Não há mais estoque disponível para o tamanho ${size} na cor ${color.name}.`, 'warning');
             }
@@ -2665,24 +2856,47 @@
             );
             if (!item) return;
             
+            const product = products.find(p => p.id === productId);
+            const color = product.colors[colorIndex];
+            const sizeInfo = color.sizes.find(s => s.name === size);
+            
             if (item.quantity > 1) {
                 item.quantity -= 1;
+                sizeInfo.stock += 1;
+                updateCartUI();
+                updateProductDisplay(productId, colorIndex);
             } else {
                 removeFromCart(productId, colorIndex, size);
                 return;
             }
-            
-            updateCartUI();
         }
 
         function removeFromCart(productId, colorIndex, size) {
-            cart = cart.filter(i => !(
-                i.id === productId && 
-                i.colorIndex === colorIndex && 
-                i.size === size
-            ));
-            updateCartUI();
-            showToast('Item removido do carrinho!', 'success');
+            const item = cart.find(item => 
+                item.id === productId && 
+                item.colorIndex === colorIndex && 
+                item.size === size
+            );
+            
+            if (item) {
+                const product = products.find(p => p.id === productId);
+                const color = product.colors[colorIndex];
+                const sizeInfo = color.sizes.find(s => s.name === size);
+                
+                // Devolver estoque
+                sizeInfo.stock += item.quantity;
+                
+                // Remover do carrinho
+                cart = cart.filter(i => !(
+                    i.id === productId && 
+                    i.colorIndex === colorIndex && 
+                    i.size === size
+                ));
+                
+                updateCartUI();
+                updateProductDisplay(productId, colorIndex);
+                showToast('Item removido do carrinho!', 'success');
+            }
         }
 
         function openCheckoutModal() {
@@ -2694,7 +2908,6 @@
             elements.checkoutModal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
-            // Resetar formulário
             elements.checkoutForm.reset();
             elements.deliveryFields.classList.remove('active');
             elements.deliveryFields.style.display = 'none';
@@ -2710,7 +2923,7 @@
             document.body.style.overflow = 'auto';
         }
 
-        function handleCheckout(e) {
+        async function handleCheckout(e) {
             e.preventDefault();
             
             const name = elements.customerName.value;
@@ -2743,38 +2956,41 @@
                 };
             }
             
-            // Criar mensagem para WhatsApp
-            let message = `Olá, gostaria de finalizar meu pedido:%0A%0A`;
+            // Criar mensagem para WhatsApp (mais rápido e direto)
+            let message = `*NOVO PEDIDO URBANZ*%0A%0A`;
+            message += `*Cliente:* ${name}%0A`;
+            message += `*Tipo:* ${deliveryType === 'entrega' ? 'Entrega' : 'Retirada na loja'}%0A`;
             
-            cart.forEach(item => {
-                message += `• ${item.title} - Cor: ${item.colorName} (Tamanho: ${item.size}) - Quantidade: ${item.quantity} - R$ ${(item.price * item.quantity).toFixed(2)}%0A`;
+            if (deliveryType === 'entrega') {
+                message += `*Endereço:* ${addressData.street}, ${addressData.number} - ${addressData.neighborhood}`;
+                if (addressData.complement) {
+                    message += ` (${addressData.complement})`;
+                }
+                message += `%0A`;
+            }
+            
+            message += `*Pagamento:* ${getPaymentMethodName(paymentMethod)}%0A`;
+            message += `*Itens:*%0A`;
+            
+            cart.forEach((item, index) => {
+                message += `${index + 1}. ${item.title}%0A`;
+                message += `   Cor: ${item.colorName} | Tamanho: ${item.size}%0A`;
+                message += `   Quantidade: ${item.quantity} | Subtotal: R$ ${(item.price * item.quantity).toFixed(2)}%0A`;
             });
             
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            message += `%0ATotal: R$ ${total.toFixed(2)}%0A%0A`;
+            message += `%0A*TOTAL: R$ ${total.toFixed(2)}*%0A`;
+            message += `%0APedido realizado via site UrbanZ`;
             
-            message += `Dados do cliente:%0A`;
-            message += `Nome: ${name}%0A`;
+            // Salvar produtos primeiro EM BACKGROUND (não esperar)
+            saveProducts().catch(error => {
+                console.error('Erro ao salvar produtos:', error);
+                // Não mostrar erro para o usuário, apenas log
+            });
             
-            if (deliveryType === 'entrega') {
-                message += `Tipo: Entrega%0A`;
-                message += `Endereço: ${addressData.street}, ${addressData.number}%0A`;
-                message += `Bairro: ${addressData.neighborhood}%0A`;
-                if (addressData.complement) {
-                    message += `Complemento: ${addressData.complement}%0A`;
-                }
-            } else {
-                message += `Tipo: Retirada na loja%0A`;
-                message += `Endereço da loja: Rua Lauro Virgílio, nº 4, sala 1, Bairro Centro, Mini Shopping (em frente ao quiosque de Rondy)%0A`;
-            }
-            
-            message += `Forma de pagamento: ${getPaymentMethodName(paymentMethod)}`;
-            
-            // Enviar automaticamente via WhatsApp usando location.href
-            window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
-            
-            // Atualizar estoque
-            updateStockAfterPurchase();
+            // Redirecionar para WhatsApp IMEDIATAMENTE (sem esperar)
+            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+            window.location.href = whatsappUrl;
             
             // Limpar carrinho e fechar modal
             cart = [];
@@ -2782,26 +2998,14 @@
             closeCheckoutModal();
             elements.checkoutForm.reset();
             
-            showToast('Pedido enviado automaticamente pelo WhatsApp!', 'success');
-        }
-
-        function updateStockAfterPurchase() {
-            cart.forEach(cartItem => {
-                const product = products.find(p => p.id === cartItem.id);
-                if (product && product.colors && product.colors[cartItem.colorIndex]) {
-                    const color = product.colors[cartItem.colorIndex];
-                    const size = color.sizes.find(s => s.name === cartItem.size);
-                    if (size) {
-                        size.stock -= cartItem.quantity;
-                        if (size.stock < 0) size.stock = 0;
-                    }
-                }
-            });
-            
-            saveProducts();
-            renderStore();
-            renderAdminProducts();
-            updateAdminDashboard();
+            // Recarregar produtos em background
+            setTimeout(() => {
+                loadData().then(() => {
+                    renderStore();
+                }).catch(error => {
+                    console.error('Erro ao recarregar produtos:', error);
+                });
+            }, 1000);
         }
 
         function getPaymentMethodName(method) {
@@ -2854,7 +3058,6 @@
             elements.totalProducts.textContent = products.length;
             elements.totalCategories.textContent = categories.length;
             
-            // Calcular itens com estoque baixo
             const lowStockCount = products.reduce((count, product) => {
                 return count + (product.colors?.reduce((colorCount, color) => {
                     return colorCount + color.sizes?.filter(size => size.stock > 0 && size.stock <= 3).length || 0;
@@ -2863,7 +3066,6 @@
             
             elements.lowStockItems.textContent = lowStockCount;
             
-            // Listar produtos com estoque baixo
             elements.lowStockList.innerHTML = '';
             
             products.forEach(product => {
@@ -2888,7 +3090,9 @@
             });
             
             document.querySelectorAll('.edit-product').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const productId = parseInt(btn.dataset.id);
                     editProduct(productId);
                 });
@@ -2910,9 +3114,7 @@
             }
             
             products.forEach(product => {
-                const totalStock = product.colors?.reduce((total, color) => {
-                    return total + (color.sizes?.reduce((colorTotal, size) => colorTotal + size.stock, 0) || 0);
-                }, 0) || 0;
+                const totalStock = calculateTotalStock(product);
                 
                 const statusClass = product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
                 const statusText = product.status === 'active' ? 'Ativo' : 'Inativo';
@@ -2959,10 +3161,10 @@
                     </td>
                     <td class="py-4 px-4">
                         <div class="flex gap-2">
-                            <button class="hover:text-blue-800 edit-product" data-id="${product.id}" style="color: var(--urbanz-primary); min-width: 44px; min-height: 44px; padding: 8px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;">
+                            <button class="edit-product hover:text-blue-800" data-id="${product.id}" style="color: var(--urbanz-primary); min-width: 44px; min-height: 44px; padding: 8px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="text-red-600 hover:text-red-800 delete-product" data-id="${product.id}" style="min-width: 44px; min-height: 44px; padding: 8px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;">
+                            <button class="delete-product text-red-600 hover:text-red-800" data-id="${product.id}" style="min-width: 44px; min-height: 44px; padding: 10px 14px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; border-radius: 6px; background-color: #ef4444; color: white; border: none;">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -2972,21 +3174,25 @@
                 elements.adminProductsList.appendChild(productRow);
             });
             
-            // Aplicar efeitos de carregamento nas imagens do admin
             document.querySelectorAll('#admin-products-list img').forEach(addImageLoadingEffect);
             
+            // Event listeners corrigidos para mobile
             document.querySelectorAll('.edit-product').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const productId = parseInt(btn.dataset.id);
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const productId = parseInt(this.dataset.id);
                     editProduct(productId);
-                });
+                }, { passive: false });
             });
             
             document.querySelectorAll('.delete-product').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const productId = parseInt(btn.dataset.id);
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const productId = parseInt(this.dataset.id);
                     deleteProduct(productId);
-                });
+                }, { passive: false });
             });
         }
 
@@ -3006,7 +3212,6 @@
                 return matchesSearch && matchesCategory;
             });
             
-            // Renderizar produtos filtrados
             elements.adminProductsList.innerHTML = '';
             
             if (filteredAdminProducts.length === 0) {
@@ -3021,9 +3226,7 @@
             }
             
             filteredAdminProducts.forEach(product => {
-                const totalStock = product.colors?.reduce((total, color) => {
-                    return total + (color.sizes?.reduce((colorTotal, size) => colorTotal + size.stock, 0) || 0);
-                }, 0) || 0;
+                const totalStock = calculateTotalStock(product);
                 
                 const statusClass = product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
                 const statusText = product.status === 'active' ? 'Ativo' : 'Inativo';
@@ -3070,10 +3273,10 @@
                     </td>
                     <td class="py-4 px-4">
                         <div class="flex gap-2">
-                            <button class="hover:text-blue-800 edit-product" data-id="${product.id}" style="color: var(--urbanz-primary); min-width: 44px; min-height: 44px; padding: 8px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;">
+                            <button class="edit-product hover:text-blue-800" data-id="${product.id}" style="color: var(--urbanz-primary); min-width: 44px; min-height: 44px; padding: 8px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="text-red-600 hover:text-red-800 delete-product" data-id="${product.id}" style="min-width: 44px; min-height: 44px; padding: 8px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;">
+                            <button class="delete-product text-red-600 hover:text-red-800" data-id="${product.id}" style="min-width: 44px; min-height: 44px; padding: 10px 14px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; border-radius: 6px; background-color: #ef4444; color: white; border: none;">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -3083,22 +3286,25 @@
                 elements.adminProductsList.appendChild(productRow);
             });
             
-            // Aplicar efeitos de carregamento nas imagens filtradas
             document.querySelectorAll('#admin-products-list img').forEach(addImageLoadingEffect);
             
-            // Adicionar event listeners aos botões
+            // Event listeners corrigidos
             document.querySelectorAll('.edit-product').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const productId = parseInt(btn.dataset.id);
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const productId = parseInt(this.dataset.id);
                     editProduct(productId);
-                });
+                }, { passive: false });
             });
             
             document.querySelectorAll('.delete-product').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const productId = parseInt(btn.dataset.id);
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const productId = parseInt(this.dataset.id);
                     deleteProduct(productId);
-                });
+                }, { passive: false });
             });
         }
 
@@ -3127,8 +3333,8 @@
                     </div>
                     <p class="text-gray-600 mb-4">${category.description || 'Sem descrição'}</p>
                     <div class="flex justify-end">
-                        <button class="text-red-600 hover:text-red-800 delete-category" data-category="${category.id}" style="min-width: 44px; min-height: 44px; padding: 8px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;">
-                            <i class="fas fa-trash"></i> Remover
+                        <button class="delete-category text-red-600 hover:text-red-800" data-category="${category.id}" style="min-width: 44px; min-height: 44px; padding: 10px 14px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; border-radius: 6px; background-color: #ef4444; color: white; border: none;">
+                            <i class="fas fa-trash mr-1"></i> Remover
                         </button>
                     </div>
                 `;
@@ -3137,10 +3343,12 @@
             });
             
             document.querySelectorAll('.delete-category').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const categoryId = btn.dataset.category;
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const categoryId = this.dataset.category;
                     deleteCategory(categoryId);
-                });
+                }, { passive: false });
             });
         }
 
@@ -3173,7 +3381,6 @@
             elements.colorsContainer.innerHTML = '';
             updateCategorySelects();
             
-            // Adicionar uma cor por padrão
             addColorVariant();
             
             elements.addProductModal.classList.remove('hidden');
@@ -3208,7 +3415,6 @@
             elements.productPrice.value = product.price;
             elements.productStatus.value = product.status;
             
-            // Limpar e recriar cores
             elements.colorsContainer.innerHTML = '';
             
             if (product.colors && product.colors.length > 0) {
@@ -3230,24 +3436,30 @@
             const productId = elements.productId.value;
             const isEdit = !!productId;
             
-            // Mostrar loading
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
             submitBtn.textContent = 'Salvando...';
             submitBtn.disabled = true;
             
             try {
-                // Coletar dados das cores
                 const colorVariants = [];
                 const colorElements = elements.colorsContainer.querySelectorAll('.color-variant');
                 
                 for (const colorEl of colorElements) {
                     const colorName = colorEl.querySelector('.color-name').value;
-                    const colorImageInput = colorEl.querySelector('.color-image');
-                    let colorImage = colorImageInput.dataset.imageData || '';
                     
-                    // Se não há dados de imagem armazenados, mas há arquivo selecionado
-                    if (!colorImage && colorImageInput.files[0]) {
+                    // Verificar imagem de múltiplas fontes
+                    let colorImage = '';
+                    
+                    // 1. Verificar campo oculto (para imagens já existentes)
+                    const imageDataInput = colorEl.querySelector('.color-image-data');
+                    if (imageDataInput && imageDataInput.value) {
+                        colorImage = imageDataInput.value;
+                    }
+                    
+                    // 2. Verificar input file (para novas imagens)
+                    const colorImageInput = colorEl.querySelector('.color-image');
+                    if (!colorImage && colorImageInput.files && colorImageInput.files[0]) {
                         try {
                             const compressedFile = await compressImage(colorImageInput.files[0]);
                             colorImage = await fileToBase64(compressedFile);
@@ -3257,6 +3469,19 @@
                             submitBtn.textContent = originalText;
                             submitBtn.disabled = false;
                             return;
+                        }
+                    }
+                    
+                    // 3. Verificar dataset do input (fallback)
+                    if (!colorImage && colorImageInput.dataset.imageData) {
+                        colorImage = colorImageInput.dataset.imageData;
+                    }
+                    
+                    // 4. Verificar preview da imagem
+                    if (!colorImage) {
+                        const preview = colorEl.querySelector('.image-preview');
+                        if (preview && preview.src && !preview.src.includes('data:,')) {
+                            colorImage = preview.src;
                         }
                     }
                     
@@ -3317,7 +3542,6 @@
                     
                     showToast(`Produto ${isEdit ? 'atualizado' : 'adicionado'} com sucesso!`, 'success');
                 } else {
-                    // Reverter mudanças se falhou
                     if (!isEdit) {
                         products.pop();
                     }
@@ -3327,7 +3551,6 @@
                 console.error('Erro no handleProductSubmit:', error);
                 showToast(`Erro inesperado: ${error.message}`, 'error');
             } finally {
-                // Restaurar botão
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             }
@@ -3350,7 +3573,6 @@
                 return;
             }
             
-            // Mostrar loading
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
             submitBtn.textContent = 'Salvando...';
@@ -3363,7 +3585,6 @@
                     description: categoryDescription || `Categoria de ${categoryName}`
                 };
                 
-                // Usar o endpoint específico para adicionar categoria
                 const response = await fetch(`${API_BASE_URL}/api/categories/add`, {
                     method: 'POST',
                     headers: {
@@ -3396,7 +3617,6 @@
                 console.error('Erro ao adicionar categoria:', error);
                 showToast(`Erro ao adicionar categoria: ${error.message}`, 'error');
             } finally {
-                // Restaurar botão
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             }
@@ -3418,7 +3638,6 @@
                     
                     showToast('Produto excluído com sucesso!', 'success');
                 } else {
-                    // Tentar restaurar se falhou
                     await loadData();
                     renderAdminProducts();
                     showToast('Erro ao excluir produto.', 'error');
@@ -3438,7 +3657,6 @@
             }
             
             try {
-                // Usar o endpoint específico para excluir categoria
                 const response = await fetch(`${API_BASE_URL}/api/categories/${categoryId}`, {
                     method: 'DELETE',
                     headers: {
@@ -3459,7 +3677,6 @@
                         categories.splice(index, 1);
                     }
                     
-                    // Recarregar dados para atualizar produtos que podem ter sido movidos
                     await loadData();
                     
                     renderCategories();
